@@ -1,0 +1,11 @@
+{
+    "executable" : "D:\\Apps\\uctags\\ctags.exe",
+    "projects" : [
+        {
+            "name" : "UE4Editor",      
+            "wildcards" : [ "*.cpp", "*.c", "*.h", "*.inl" ],
+            "tagpath" : "D:\\ue4\\UnrealEngine\\Engine\\Source\\Editor",
+            "flags" : [ "--verbose=yes", "-e", "--options=u4tags.conf", "--C++-kinds=cfnstunedm", "--C-kinds=cfnstunedm", "--extra=+q" ]                   
+        }
+    ]
+}
