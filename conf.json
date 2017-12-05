@@ -3,9 +3,27 @@
     "projects" : [
         {
             "name" : "UE4Editor",      
-            "wildcards" : [ "*.cpp", "*.c", "*.h", "*.inl" ],
-            "tagpath" : "D:\\ue4\\UnrealEngine\\Engine\\Source\\Editor",
+            "wildcards" : [ "*.cpp", "*.c", "*.h", "*.inl", "*.cs" ],
+            "tagpath" : "D:\\gamedev\\gander\\ue4\\Engine\\Source\\Editor",
             "flags" : [ "--verbose=yes", "-e", "--options=u4tags.conf", "--C++-kinds=cfnstunedm", "--C-kinds=cfnstunedm", "--extra=+q" ]                   
-        }
+        },
+        {
+            "name" : "UE4Runtime",      
+            "wildcards" : [ "*.cpp", "*.c", "*.h", "*.inl", "*.cs" ],
+            "tagpath" : "D:\\gamedev\\gander\\ue4\\Engine\\Source\\Runtime",
+            "flags" : [ "--verbose=yes", "-e", "--options=u4tags.conf", "--C++-kinds=cfnstunedm", "--C-kinds=cfnstunedm", "--extra=+q" ]                   
+        },
+        {
+            "name" : "UE4Develeoper",      
+            "wildcards" : [ "*.cpp", "*.c", "*.h", "*.inl", "*.cs" ],
+            "tagpath" : "D:\\gamedev\\gander\\ue4\\Engine\\Source\\Developer",
+            "flags" : [ "--verbose=yes", "-e", "--options=u4tags.conf", "--C++-kinds=cfnstunedm", "--C-kinds=cfnstunedm", "--extra=+q" ]                   
+        },
+        {
+            "name" : "GanderGame",      
+            "wildcards" : [ "*.cpp", "*.c", "*.h", "*.inl", "*.cs" ],
+            "tagpath" : "D:\\gamedev\\gander\\ue4\\Engine\\Source\\GanderGame",
+            "flags" : [ "--verbose=yes", "-e", "--options=u4tags.conf", "--C++-kinds=cfnstunedm", "--C-kinds=cfnstunedm", "--extra=+q" ]                   
+        }	
     ]
 }

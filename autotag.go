@@ -28,7 +28,7 @@ func walker(contents *[]string, wildcards []string) filepath.WalkFunc {
 		globs = append(globs, glob.MustCompile(wildcards[i]))
 	}
 	return func(path string, info os.FileInfo, err error) error {
-		if !info.IsDir() {
+		if (info != nil) && (!info.IsDir()) {
 			for i := range globs {
 				if globs[i].Match(path) {
 					*contents = append(*contents, path)
