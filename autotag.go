@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -17,10 +18,25 @@ func check(e error) {
 		panic(e)
 	}
 }
+
+/*
+ * Given a name return the index file name
+ */
 func indexFile(name string) string {
 	return name + ".files"
 }
 
+/*
+ * Given a name return the tag file name
+ */
+func tagFile(name string) string {
+	return name + ".tags"
+}
+
+/**
+ * Return a fucntion that will recursively walk a path, filtering with the
+* given wildcards, and accumulating file names in contents
+*/
 func walker(contents *[]string, wildcards []string) filepath.WalkFunc {
 	var globs []glob.Glob
 
@@ -40,6 +56,10 @@ func walker(contents *[]string, wildcards []string) filepath.WalkFunc {
 	}
 }
 
+/*
+ * Create an named index file, with filenames recursively found on the given path,
+ * filtered by the given wildcards
+ */
 func createIndex(name string, path string, wildcards []string) {
 	f, err := os.Create(name)
 	check(err)
@@ -59,6 +79,66 @@ func createIndex(name string, path string, wildcards []string) {
 	return
 }
 
+var sem = make(chan int, 0)
+
+func copyOutput(r io.Reader) {
+	scanner := bufio.NewScanner(r)
+	for scanner.Scan() {
+		line := scanner.Text()
+		log.Print(line)
+		//contents = append(contents, line)
+	}
+}
+
+func scanProject(p interface{}, tagExe string) {
+	var projectWildcards []string
+	var args []string
+	project := p.(map[string]interface{})
+	projectName := project["name"].(string)
+	projectIndex := indexFile(projectName)
+	outputFile := tagFile(projectName)
+	projectTagpath := project["tagpath"].(string)
+	projectFlags := project["flags"].([]interface{})
+	args = make([]string, 0, len(projectFlags)+5)
+	args = append(args, "-e")
+	args = append(args, "-L")
+	args = append(args, projectIndex)
+	args = append(args, "-f")
+	args = append(args, outputFile)
+	for _, q := range projectFlags {
+		args = append(args, q.(string))
+	}
+	wildcards := project["wildcards"].([]interface{})
+	for _, w := range wildcards {
+		projectWildcards = append(projectWildcards, w.(string))
+	}
+	createIndex(projectIndex, projectTagpath, projectWildcards)
+	fmt.Println("Creating", projectIndex)
+	tagCmd := exec.Command(tagExe, args...)
+
+	stdout, err := tagCmd.StdoutPipe()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	stderr, err := tagCmd.StderrPipe()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = tagCmd.Start()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Launching ", tagCmd.Args)
+	copyOutput(stdout)
+	copyOutput(stderr)
+
+	tagCmd.Wait()
+	fmt.Println("Done ", tagCmd.Args)
+	sem <- 1
+}
+
 func main() {
 	config, err := os.Open("conf.json")
 	if err != nil {
@@ -73,32 +153,14 @@ func main() {
 	}
 	config.Close()
 	tagExe := v["executable"].(string)
-	var args []string
 	projects := v["projects"].([]interface{})
+	var projectCount = len(projects)
 	for _, p := range projects {
-		var projectWildcards []string
-		project := p.(map[string]interface{})
-		projectName := project["name"].(string)
-		projectIndex := indexFile(projectName)
-		projectTagpath := project["tagpath"].(string)
-		projectFlags := project["flags"].([]interface{})
-		args = make([]string, 0, len(projectFlags)+3)
-		args = append(args, "-e")
-		args = append(args, "-L")
-		args = append(args, projectIndex)
-		for _, q := range projectFlags {
-			args = append(args, q.(string))
-		}
-		wildcards := project["wildcards"].([]interface{})
-		for _, w := range wildcards {
-			projectWildcards = append(projectWildcards, w.(string))
-		}
-		createIndex(projectIndex, projectTagpath, projectWildcards)
-		fmt.Println("Creating", projectIndex)
-		tagCmd := exec.Command(tagExe, args...)
-		tagOut, err := tagCmd.CombinedOutput()
-		fmt.Println("> UcTags Output")
-		fmt.Println(string(tagOut))
-		fmt.Println(err)
+		go scanProject(p, tagExe)
+	}
+	done := projectCount
+	for done != 0 {
+		inc := <-sem
+		done = done - inc
 	}
 }
