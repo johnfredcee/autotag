@@ -2,28 +2,16 @@
     "executable" : "D:\\Apps\\uctags\\ctags.exe",
     "projects" : [
         {
-            "name" : "UE4Editor",      
+            "name" : "Source",      
             "wildcards" : [ "*.cpp", "*.c", "*.h", "*.inl", "*.cs" ],
-            "tagpath" : "D:\\gamedev\\gander\\ue4\\Engine\\Source\\Editor",
-            "flags" : [ "--verbose=no", "-e", "--options=u4tags.conf", "--C++-kinds=cfnstunedm", "--C-kinds=cfnstunedm", "--extra=+q" ]                   
+            "tagpaths" : [ "d:\\wsr\\local\\libraries\\irrlicht-trunk\\source\\Irrlicht\\" ],
+            "flags" : [ "--verbose=yes",  "--options=irrlicht.conf", "--C++-kinds=cfnstunedm", "--C-kinds=cfnstunedm", "--extra=+q" ]                   
         },
         {
-            "name" : "UE4Runtime",      
+            "name" : "Includes",      
             "wildcards" : [ "*.cpp", "*.c", "*.h", "*.inl", "*.cs" ],
-            "tagpath" : "D:\\gamedev\\gander\\ue4\\Engine\\Source\\Runtime",
-            "flags" : [ "--verbose=no", "-e", "--options=u4tags.conf", "--C++-kinds=cfnstunedm", "--C-kinds=cfnstunedm", "--extra=+q" ]                   
-        },
-        {
-            "name" : "UE4Develeoper",      
-            "wildcards" : [ "*.cpp", "*.c", "*.h", "*.inl", "*.cs" ],
-            "tagpath" : "D:\\gamedev\\gander\\ue4\\Engine\\Source\\Developer",
-            "flags" : [ "--verbose=no", "-e", "--options=u4tags.conf", "--C++-kinds=cfnstunedm", "--C-kinds=cfnstunedm", "--extra=+q" ]                   
-        },
-        {
-            "name" : "GanderGame",      
-            "wildcards" : [ "*.cpp", "*.c", "*.h", "*.inl", "*.cs" ],
-            "tagpath" : "D:\\gamedev\\gander\\ue4\\Engine\\Source\\GanderGame",
-            "flags" : [ "--verbose=no", "-e", "--options=u4tags.conf", "--C++-kinds=cfnstunedm", "--C-kinds=cfnstunedm", "--extra=+q" ]                   
-        }	
+            "tagpath" : [ "d:\\wsr\\local\\libraries\\irrlicht-trunk\\include\\" ],
+            "flags" : [ "--verbose=yes", "--options=irrlicht.conf", "--C++-kinds=cfnstunedm", "--C-kinds=cfnstunedm", "--extra=+q" ]                   
+        }
     ]
 }

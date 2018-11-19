@@ -60,13 +60,16 @@ func walker(contents *[]string, wildcards []string) filepath.WalkFunc {
  * Create an named index file, with filenames recursively found on the given path,
  * filtered by the given wildcards
  */
-func createIndex(name string, path string, wildcards []string) {
+func createIndex(name string, paths []interface{}, wildcards []string) {
 	f, err := os.Create(name)
 	check(err)
 	defer f.Close()
 	w := bufio.NewWriter(f)
 	indexContents := []string{}
-	filepath.Walk(path, walker(&indexContents, wildcards))
+	for _, path := range paths {
+		p := path.(string)
+		filepath.Walk(p, walker(&indexContents, wildcards))
+	}
 	for i := range indexContents {
 		s := fmt.Sprintln(indexContents[i])
 		bc, err := w.WriteString(s)
@@ -90,6 +93,12 @@ func copyOutput(r io.Reader) {
 	}
 }
 
+func projectDirectory(p interface{}) string {
+	project := p.(map[string]interface{})
+	projectTagpath := project["tagpath"].(string)
+	return projectTagpath
+}
+
 func scanProject(p interface{}, tagExe string) {
 	var projectWildcards []string
 	var args []string
@@ -97,10 +106,9 @@ func scanProject(p interface{}, tagExe string) {
 	projectName := project["name"].(string)
 	projectIndex := indexFile(projectName)
 	outputFile := tagFile(projectName)
-	projectTagpath := project["tagpath"].(string)
+	projectTagpaths := project["tagpath"].([]interface{})
 	projectFlags := project["flags"].([]interface{})
-	args = make([]string, 0, len(projectFlags)+5)
-	args = append(args, "-e")
+	args = make([]string, 0, len(projectFlags)+4)
 	args = append(args, "-L")
 	args = append(args, projectIndex)
 	args = append(args, "-f")
@@ -112,8 +120,9 @@ func scanProject(p interface{}, tagExe string) {
 	for _, w := range wildcards {
 		projectWildcards = append(projectWildcards, w.(string))
 	}
-	createIndex(projectIndex, projectTagpath, projectWildcards)
 	fmt.Println("Creating", projectIndex)
+	createIndex(projectIndex, projectTagpaths, projectWildcards)
+	fmt.Println("Tagging", projectIndex)
 	tagCmd := exec.Command(tagExe, args...)
 
 	stdout, err := tagCmd.StdoutPipe()
